@@ -1,0 +1,223 @@
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.card-item {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent),
+    var(--surface);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.card-item:hover {
+  transform: translateY(-6px);
+  border-color: rgba(76, 201, 240, 0.45);
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.42);
+}
+
+.card-item__image-wrap {
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  padding: 1.25rem;
+  background:
+    radial-gradient(circle, rgba(255, 209, 102, 0.18), transparent 60%),
+    #0e1422;
+}
+
+.card-item__image {
+  width: min(100%, 180px);
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.45));
+  transition: transform 180ms ease;
+}
+
+.card-item:hover .card-item__image {
+  transform: scale(1.04) rotate(-1deg);
+}
+
+.card-item__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.1rem;
+}
+
+.card-item__set {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.card-item h2 {
+  margin-top: 0.2rem;
+  font-size: 1.35rem;
+}
+
+.card-item__details,
+.card-item__bottom,
+.card-item__badges {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.card-item__details span {
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  background: var(--surface-light);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.card-item__bottom {
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.card-item__price {
+  color: var(--yellow);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.badge,
+.card-item__status {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.badge {
+  padding: 0.35rem 0.6rem;
+}
+
+.badge--trade {
+  color: #061d26;
+  background: var(--blue);
+}
+
+.badge--sale {
+  color: #271007;
+  background: var(--yellow);
+}
+
+.card-item__status {
+  padding: 0.45rem 0.7rem;
+  color: var(--green);
+  background: rgba(87, 214, 141, 0.12);
+}
+
+.card-item__button {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(76, 201, 240, 0.45);
+  border-radius: 12px;
+  color: #061d26;
+  background: var(--blue);
+  cursor: pointer;
+  font-weight: 900;
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
+}
+
+.card-item__button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.card-item__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.card-item__button--danger {
+  border-color: rgba(255, 93, 115, 0.4);
+  color: #fff;
+  background: var(--red);
+}
+
+.card-item__button--wishlist {
+  border-color: rgba(255, 209, 102, 0.45);
+  color: #271007;
+  background: var(--yellow);
+}
+
+.card-skeleton {
+  min-height: 420px;
+  padding: 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.card-skeleton__image,
+.card-skeleton__line {
+  border-radius: 14px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.06)
+  );
+  background-size: 220% 100%;
+  animation: skeleton-loading 1.2s ease-in-out infinite;
+}
+
+.card-skeleton__image {
+  height: 250px;
+  margin-bottom: 1.2rem;
+}
+
+.card-skeleton__line {
+  height: 16px;
+  margin-top: 0.8rem;
+}
+
+.card-skeleton__line--short {
+  width: 62%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-item__image-wrap {
+    min-height: 230px;
+  }
+
+  .card-item__bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

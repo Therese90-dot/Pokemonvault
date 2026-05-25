@@ -1,0 +1,227 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1rem 0;
+  backdrop-filter: blur(12px);
+}
+
+.navbar__logo {
+  color: var(--heading);
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(18, 24, 39, 0.75);
+  box-shadow: var(--shadow);
+}
+
+.navbar__links a {
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.navbar__links a:hover {
+  color: var(--heading);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.home {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 2rem;
+  align-items: center;
+  min-height: 360px;
+  padding: 3rem;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(255, 209, 102, 0.14), transparent 34%),
+    linear-gradient(145deg, rgba(76, 201, 240, 0.16), rgba(18, 24, 39, 0.94)),
+    var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.hero__content {
+  max-width: 680px;
+}
+
+.hero__eyebrow,
+.home__section-heading p {
+  color: var(--yellow);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 760px;
+  margin-top: 0.7rem;
+  font-size: clamp(2.4rem, 6vw, 5rem);
+}
+
+.hero__content > p:last-child {
+  max-width: 620px;
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.hero__panel {
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  background: rgba(9, 13, 22, 0.65);
+}
+
+.hero__panel span,
+.hero__panel p {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.hero__panel strong {
+  display: block;
+  margin: 0.4rem 0;
+  color: var(--green);
+  font-size: 2.5rem;
+}
+
+.home__section-heading {
+  margin: 3rem 0 1.25rem;
+}
+
+.home__section-heading h2 {
+  margin-top: 0.35rem;
+  font-size: 2rem;
+}
+
+.collection-heading {
+  margin-top: 1rem;
+}
+
+.collection-heading h1 {
+  margin-top: 0.35rem;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(18, 24, 39, 0.45);
+}
+
+.collection-filters {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.filter-control {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.filter-control span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.filter-control input,
+.filter-control select {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  outline: none;
+  color: var(--heading);
+  background: rgba(18, 24, 39, 0.88);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+}
+
+.filter-control input:focus,
+.filter-control select:focus {
+  border-color: rgba(76, 201, 240, 0.75);
+}
+
+.filter-control input::placeholder {
+  color: #657089;
+}
+
+.page-message {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--muted);
+  background: rgba(18, 24, 39, 0.7);
+}
+
+@media (max-width: 760px) {
+  .navbar {
+    position: static;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .navbar__links {
+    width: 100%;
+    justify-content: space-between;
+    overflow-x: auto;
+    border-radius: 16px;
+  }
+
+  .navbar__links a {
+    white-space: nowrap;
+  }
+
+  .home {
+    padding-top: 1rem;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 2rem 1.25rem;
+    border-radius: 18px;
+  }
+
+  .hero__panel {
+    width: 100%;
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}
