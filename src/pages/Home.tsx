@@ -5,6 +5,7 @@ import {
   addCardToCollection,
   getCollectionCards,
 } from '../services/collectionStorage'
+import { addCardToTrade, getTradeCards } from '../services/tradeStorage'
 import { addCardToWishlist, getWishlistCards } from '../services/wishlistStorage'
 import {
   fetchCardsBySet,
@@ -41,6 +42,9 @@ export function Home() {
   )
   const [wishlistIds, setWishlistIds] = useState<string[]>(() =>
     getWishlistCards().map((card) => card.id),
+  )
+  const [tradeIds, setTradeIds] = useState<string[]>(() =>
+    getTradeCards().map((card) => card.id),
   )
   const [seriesFilter, setSeriesFilter] = useState<SeriesFilter>('All')
   const [selectedSetId, setSelectedSetId] = useState('')
@@ -195,6 +199,11 @@ export function Home() {
     setWishlistIds(updatedCards.map((savedCard) => savedCard.id))
   }
 
+  function handleAddToTrade(card: Card) {
+    const updatedCards = addCardToTrade(card)
+    setTradeIds(updatedCards.map((savedCard) => savedCard.id))
+  }
+
   return (
     <>
       <Navbar />
@@ -228,8 +237,10 @@ export function Home() {
             cards={featuredHits}
             collectionIds={collectionIds}
             wishlistIds={wishlistIds}
+            tradeIds={tradeIds}
             onAddToCollection={handleAddToCollection}
             onAddToWishlist={handleAddToWishlist}
+            onAddToTrade={handleAddToTrade}
           />
         )}
         {!isLoadingFeaturedHits && featuredHits.length === 0 && (
@@ -333,8 +344,10 @@ export function Home() {
             cards={visibleCards}
             collectionIds={collectionIds}
             wishlistIds={wishlistIds}
+            tradeIds={tradeIds}
             onAddToCollection={handleAddToCollection}
             onAddToWishlist={handleAddToWishlist}
+            onAddToTrade={handleAddToTrade}
           />
         )}
       </main>

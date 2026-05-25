@@ -188,6 +188,32 @@
   background: rgba(18, 24, 39, 0.7);
 }
 
+.empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+  padding: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  color: var(--muted);
+  background: rgba(18, 24, 39, 0.7);
+}
+
+.empty-state p {
+  color: var(--heading);
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.empty-state a {
+  display: inline-flex;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  color: #061d26;
+  background: var(--blue);
+  font-weight: 900;
+}
+
 @media (max-width: 760px) {
   .navbar {
     position: static;

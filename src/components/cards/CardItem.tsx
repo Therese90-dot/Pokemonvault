@@ -4,23 +4,30 @@ type CardItemProps = {
   card: Card
   collectionIds?: string[]
   wishlistIds?: string[]
+  tradeIds?: string[]
   onAddToCollection?: (card: Card) => void
   onRemoveFromCollection?: (cardId: string) => void
   onAddToWishlist?: (card: Card) => void
   onRemoveFromWishlist?: (cardId: string) => void
+  onAddToTrade?: (card: Card) => void
+  onRemoveFromTrade?: (cardId: string) => void
 }
 
 export function CardItem({
   card,
   collectionIds = [],
   wishlistIds = [],
+  tradeIds = [],
   onAddToCollection,
   onRemoveFromCollection,
   onAddToWishlist,
   onRemoveFromWishlist,
+  onAddToTrade,
+  onRemoveFromTrade,
 }: CardItemProps) {
   const isSaved = card.inCollection || collectionIds.includes(card.id)
   const isWishlisted = wishlistIds.includes(card.id)
+  const isInTradeList = tradeIds.includes(card.id)
 
   return (
     <article className="card-item">
@@ -77,6 +84,17 @@ export function CardItem({
           </button>
         )}
 
+        {onAddToTrade && (
+          <button
+            className="card-item__button card-item__button--trade"
+            type="button"
+            onClick={() => onAddToTrade(card)}
+            disabled={isInTradeList}
+          >
+            {isInTradeList ? 'In trade list' : 'Add to trade'}
+          </button>
+        )}
+
         {onRemoveFromCollection && (
           <button
             className="card-item__button card-item__button--danger"
@@ -94,6 +112,16 @@ export function CardItem({
             onClick={() => onRemoveFromWishlist(card.id)}
           >
             Remove
+          </button>
+        )}
+
+        {onRemoveFromTrade && (
+          <button
+            className="card-item__button card-item__button--danger"
+            type="button"
+            onClick={() => onRemoveFromTrade(card.id)}
+          >
+            Remove from trade
           </button>
         )}
       </div>

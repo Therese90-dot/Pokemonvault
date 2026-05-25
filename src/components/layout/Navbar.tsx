@@ -1,4 +1,8 @@
+import { getTradeCards } from '../../services/tradeStorage'
+
 export function Navbar() {
+  const tradeCount = getTradeCards().length
+
   return (
     <header className="navbar">
       <a className="navbar__logo" href="/">
@@ -9,7 +13,7 @@ export function Navbar() {
         <a href="/">Home</a>
         <a href="/collection">My Collection</a>
         <a href="/wishlist">Wishlist</a>
-        <a href="/trade">Trade</a>
+        <a href="/trade">Trade ({tradeCount})</a>
       </nav>
     </header>
   )

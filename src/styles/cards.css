@@ -161,6 +161,12 @@
   background: var(--yellow);
 }
 
+.card-item__button--trade {
+  border-color: rgba(87, 214, 141, 0.45);
+  color: #071f12;
+  background: var(--green);
+}
+
 .card-skeleton {
   min-height: 420px;
   padding: 1.1rem;
