@@ -3,10 +3,12 @@ import type { Card } from '../../types/card'
 type CardItemProps = {
   card: Card
   collectionIds?: string[]
+  collectionQuantities?: Record<string, number>
   wishlistIds?: string[]
   tradeIds?: string[]
   onAddToCollection?: (card: Card) => void
   onRemoveFromCollection?: (cardId: string) => void
+  onDecreaseCollectionQuantity?: (cardId: string) => void
   onAddToWishlist?: (card: Card) => void
   onRemoveFromWishlist?: (cardId: string) => void
   onAddToTrade?: (card: Card) => void
@@ -16,10 +18,12 @@ type CardItemProps = {
 export function CardItem({
   card,
   collectionIds = [],
+  collectionQuantities = {},
   wishlistIds = [],
   tradeIds = [],
   onAddToCollection,
   onRemoveFromCollection,
+  onDecreaseCollectionQuantity,
   onAddToWishlist,
   onRemoveFromWishlist,
   onAddToTrade,
@@ -28,6 +32,7 @@ export function CardItem({
   const isSaved = card.inCollection || collectionIds.includes(card.id)
   const isWishlisted = wishlistIds.includes(card.id)
   const isInTradeList = tradeIds.includes(card.id)
+  const quantity = card.quantity ?? collectionQuantities[card.id] ?? (isSaved ? 1 : 0)
 
   return (
     <article className="card-item">
@@ -59,28 +64,53 @@ export function CardItem({
         </div>
 
         <span className="card-item__status">
-          {isSaved ? 'Owned' : 'Not owned'}
+          {isSaved ? `Owned x${quantity}` : 'Not owned'}
         </span>
 
         {onAddToCollection && (
           <button
             className="card-item__button"
             type="button"
-            onClick={() => onAddToCollection(card)}
-            disabled={isSaved}
+            onClick={() => {
+              if (isSaved && onRemoveFromCollection) {
+                onRemoveFromCollection(card.id)
+              } else {
+                onAddToCollection(card)
+              }
+            }}
           >
-            {isSaved ? 'Added to collection' : 'Add to my collection'}
+            {isSaved ? 'Remove from my collection' : 'Add to my collection'}
           </button>
+        )}
+
+        {onDecreaseCollectionQuantity && (
+          <div className="quantity-controls" aria-label="Collection quantity">
+            <button
+              type="button"
+              onClick={() => onDecreaseCollectionQuantity(card.id)}
+            >
+              -
+            </button>
+            <span>{quantity}</span>
+            <button type="button" onClick={() => onAddToCollection?.(card)}>
+              +
+            </button>
+          </div>
         )}
 
         {onAddToWishlist && (
           <button
             className="card-item__button card-item__button--wishlist"
             type="button"
-            onClick={() => onAddToWishlist(card)}
-            disabled={isWishlisted}
+            onClick={() => {
+              if (isWishlisted && onRemoveFromWishlist) {
+                onRemoveFromWishlist(card.id)
+              } else {
+                onAddToWishlist(card)
+              }
+            }}
           >
-            {isWishlisted ? '♥ In wishlist' : '♡ Add to wishlist'}
+            {isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           </button>
         )}
 
@@ -88,14 +118,19 @@ export function CardItem({
           <button
             className="card-item__button card-item__button--trade"
             type="button"
-            onClick={() => onAddToTrade(card)}
-            disabled={isInTradeList}
+            onClick={() => {
+              if (isInTradeList && onRemoveFromTrade) {
+                onRemoveFromTrade(card.id)
+              } else {
+                onAddToTrade(card)
+              }
+            }}
           >
-            {isInTradeList ? 'In trade list' : 'Add to trade'}
+            {isInTradeList ? 'Remove from trade' : 'Add to trade'}
           </button>
         )}
 
-        {onRemoveFromCollection && (
+        {onRemoveFromCollection && !onAddToCollection && (
           <button
             className="card-item__button card-item__button--danger"
             type="button"
@@ -105,7 +140,7 @@ export function CardItem({
           </button>
         )}
 
-        {onRemoveFromWishlist && (
+        {onRemoveFromWishlist && !onAddToWishlist && (
           <button
             className="card-item__button card-item__button--danger"
             type="button"
@@ -115,7 +150,7 @@ export function CardItem({
           </button>
         )}
 
-        {onRemoveFromTrade && (
+        {onRemoveFromTrade && !onAddToTrade && (
           <button
             className="card-item__button card-item__button--danger"
             type="button"

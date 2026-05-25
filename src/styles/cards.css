@@ -167,6 +167,35 @@
   background: var(--green);
 }
 
+.quantity-controls {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.quantity-controls button,
+.quantity-controls span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  border-radius: 10px;
+  font-weight: 900;
+}
+
+.quantity-controls button {
+  border: 1px solid var(--border);
+  color: var(--heading);
+  background: var(--surface-light);
+  cursor: pointer;
+}
+
+.quantity-controls span {
+  color: var(--yellow);
+  background: rgba(255, 209, 102, 0.12);
+}
+
 .card-skeleton {
   min-height: 420px;
   padding: 1.1rem;

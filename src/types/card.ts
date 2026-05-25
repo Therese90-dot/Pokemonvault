@@ -11,6 +11,7 @@ export type Card = {
   rarity: string
   imageUrl: string
   price: number | null
+  quantity?: number
   inCollection: boolean
   forTrade: boolean
   forSale: boolean

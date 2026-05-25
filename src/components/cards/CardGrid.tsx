@@ -4,10 +4,12 @@ import { CardItem } from './CardItem'
 type CardGridProps = {
   cards: Card[]
   collectionIds?: string[]
+  collectionQuantities?: Record<string, number>
   wishlistIds?: string[]
   tradeIds?: string[]
   onAddToCollection?: (card: Card) => void
   onRemoveFromCollection?: (cardId: string) => void
+  onDecreaseCollectionQuantity?: (cardId: string) => void
   onAddToWishlist?: (card: Card) => void
   onRemoveFromWishlist?: (cardId: string) => void
   onAddToTrade?: (card: Card) => void
@@ -17,10 +19,12 @@ type CardGridProps = {
 export function CardGrid({
   cards,
   collectionIds = [],
+  collectionQuantities = {},
   wishlistIds = [],
   tradeIds = [],
   onAddToCollection,
   onRemoveFromCollection,
+  onDecreaseCollectionQuantity,
   onAddToWishlist,
   onRemoveFromWishlist,
   onAddToTrade,
@@ -33,10 +37,12 @@ export function CardGrid({
           key={card.id}
           card={card}
           collectionIds={collectionIds}
+          collectionQuantities={collectionQuantities}
           wishlistIds={wishlistIds}
           tradeIds={tradeIds}
           onAddToCollection={onAddToCollection}
           onRemoveFromCollection={onRemoveFromCollection}
+          onDecreaseCollectionQuantity={onDecreaseCollectionQuantity}
           onAddToWishlist={onAddToWishlist}
           onRemoveFromWishlist={onRemoveFromWishlist}
           onAddToTrade={onAddToTrade}

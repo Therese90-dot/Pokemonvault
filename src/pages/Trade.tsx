@@ -11,6 +11,11 @@ export function Trade() {
   const collectionIds = useMemo(() => {
     return getCollectionCards().map((card) => card.id)
   }, [])
+  const collectionQuantities = useMemo(() => {
+    return Object.fromEntries(
+      getCollectionCards().map((card) => [card.id, card.quantity ?? 1]),
+    )
+  }, [])
   const [searchTerm, setSearchTerm] = useState('')
   const [sortOption, setSortOption] = useState<SortOption>('name-az')
 
@@ -109,6 +114,7 @@ export function Trade() {
               <CardGrid
                 cards={visibleCards}
                 collectionIds={collectionIds}
+                collectionQuantities={collectionQuantities}
                 onRemoveFromTrade={handleRemoveCard}
               />
             )}

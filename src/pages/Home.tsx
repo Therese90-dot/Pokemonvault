@@ -4,9 +4,18 @@ import { Navbar } from '../components/layout/Navbar'
 import {
   addCardToCollection,
   getCollectionCards,
+  removeCardFromCollection,
 } from '../services/collectionStorage'
-import { addCardToTrade, getTradeCards } from '../services/tradeStorage'
-import { addCardToWishlist, getWishlistCards } from '../services/wishlistStorage'
+import {
+  addCardToTrade,
+  getTradeCards,
+  removeCardFromTrade,
+} from '../services/tradeStorage'
+import {
+  addCardToWishlist,
+  getWishlistCards,
+  removeCardFromWishlist,
+} from '../services/wishlistStorage'
 import {
   fetchCardsBySet,
   fetchFeaturedMegaEvolutionCards,
@@ -181,11 +190,20 @@ export function Home() {
   }, [cards, maxPrice, minPrice, searchTerm, sortOption])
 
   const collectionValue = collectionCards.reduce(
-    (total, card) => total + (card.price ?? 0),
+    (total, card) => total + (card.price ?? 0) * (card.quantity ?? 1),
+    0,
+  )
+  const collectionCount = collectionCards.reduce(
+    (total, card) => total + (card.quantity ?? 1),
     0,
   )
   const collectionIds = useMemo(() => {
     return collectionCards.map((card) => card.id)
+  }, [collectionCards])
+  const collectionQuantities = useMemo(() => {
+    return Object.fromEntries(
+      collectionCards.map((card) => [card.id, card.quantity ?? 1]),
+    )
   }, [collectionCards])
   const isLoading = isLoadingSets || isLoadingCards
 
@@ -194,13 +212,28 @@ export function Home() {
     setCollectionCards(updatedCards)
   }
 
+  function handleRemoveFromCollection(cardId: string) {
+    const updatedCards = removeCardFromCollection(cardId)
+    setCollectionCards(updatedCards)
+  }
+
   function handleAddToWishlist(card: Card) {
     const updatedCards = addCardToWishlist(card)
     setWishlistIds(updatedCards.map((savedCard) => savedCard.id))
   }
 
+  function handleRemoveFromWishlist(cardId: string) {
+    const updatedCards = removeCardFromWishlist(cardId)
+    setWishlistIds(updatedCards.map((savedCard) => savedCard.id))
+  }
+
   function handleAddToTrade(card: Card) {
     const updatedCards = addCardToTrade(card)
+    setTradeIds(updatedCards.map((savedCard) => savedCard.id))
+  }
+
+  function handleRemoveFromTrade(cardId: string) {
+    const updatedCards = removeCardFromTrade(cardId)
     setTradeIds(updatedCards.map((savedCard) => savedCard.id))
   }
 
@@ -220,7 +253,7 @@ export function Home() {
           </div>
 
           <div className="hero__panel" aria-label="Collection highlights">
-            <span>{collectionCards.length} cards in my collection</span>
+            <span>{collectionCount} cards in my collection</span>
             <strong>${collectionValue.toFixed(2)}</strong>
             <p>My collection market value</p>
           </div>
@@ -236,11 +269,15 @@ export function Home() {
           <CardGrid
             cards={featuredHits}
             collectionIds={collectionIds}
+            collectionQuantities={collectionQuantities}
             wishlistIds={wishlistIds}
             tradeIds={tradeIds}
             onAddToCollection={handleAddToCollection}
+            onRemoveFromCollection={handleRemoveFromCollection}
             onAddToWishlist={handleAddToWishlist}
+            onRemoveFromWishlist={handleRemoveFromWishlist}
             onAddToTrade={handleAddToTrade}
+            onRemoveFromTrade={handleRemoveFromTrade}
           />
         )}
         {!isLoadingFeaturedHits && featuredHits.length === 0 && (
@@ -343,11 +380,15 @@ export function Home() {
           <CardGrid
             cards={visibleCards}
             collectionIds={collectionIds}
+            collectionQuantities={collectionQuantities}
             wishlistIds={wishlistIds}
             tradeIds={tradeIds}
             onAddToCollection={handleAddToCollection}
+            onRemoveFromCollection={handleRemoveFromCollection}
             onAddToWishlist={handleAddToWishlist}
+            onRemoveFromWishlist={handleRemoveFromWishlist}
             onAddToTrade={handleAddToTrade}
+            onRemoveFromTrade={handleRemoveFromTrade}
           />
         )}
       </main>

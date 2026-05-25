@@ -2,9 +2,12 @@ import { useMemo, useState } from 'react'
 import { CardGrid } from '../components/cards/CardGrid'
 import { Navbar } from '../components/layout/Navbar'
 import {
+  addCardToCollection,
+  decreaseCardQuantity,
   getCollectionCards,
   removeCardFromCollection,
 } from '../services/collectionStorage'
+import type { Card } from '../types/card'
 
 type SortOption = 'price-low' | 'price-high' | 'name-az' | 'name-za'
 
@@ -65,6 +68,16 @@ export function Collection() {
 
   function handleRemoveCard(cardId: string) {
     const updatedCards = removeCardFromCollection(cardId)
+    setCards(updatedCards)
+  }
+
+  function handleIncreaseQuantity(card: Card) {
+    const updatedCards = addCardToCollection(card)
+    setCards(updatedCards)
+  }
+
+  function handleDecreaseQuantity(cardId: string) {
+    const updatedCards = decreaseCardQuantity(cardId)
     setCards(updatedCards)
   }
 
@@ -140,7 +153,9 @@ export function Collection() {
         {visibleCards.length > 0 && (
           <CardGrid
             cards={visibleCards}
+            onAddToCollection={handleIncreaseQuantity}
             onRemoveFromCollection={handleRemoveCard}
+            onDecreaseCollectionQuantity={handleDecreaseQuantity}
           />
         )}
       </main>
