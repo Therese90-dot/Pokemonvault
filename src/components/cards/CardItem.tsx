@@ -59,7 +59,7 @@ export function CardItem({
         </div>
 
         <span className="card-item__status">
-          {isSaved ? 'In collection' : 'Not owned'}
+          {isSaved ? 'Owned' : 'Not owned'}
         </span>
 
         {onAddToCollection && (

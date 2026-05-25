@@ -1,12 +1,16 @@
 import { useMemo, useState } from 'react'
 import { CardGrid } from '../components/cards/CardGrid'
 import { Navbar } from '../components/layout/Navbar'
+import { getCollectionCards } from '../services/collectionStorage'
 import { getTradeCards, removeCardFromTrade } from '../services/tradeStorage'
 
 type SortOption = 'price-low' | 'price-high' | 'name-az' | 'name-za'
 
 export function Trade() {
   const [cards, setCards] = useState(() => getTradeCards())
+  const collectionIds = useMemo(() => {
+    return getCollectionCards().map((card) => card.id)
+  }, [])
   const [searchTerm, setSearchTerm] = useState('')
   const [sortOption, setSortOption] = useState<SortOption>('name-az')
 
@@ -104,6 +108,7 @@ export function Trade() {
             {visibleCards.length > 0 && (
               <CardGrid
                 cards={visibleCards}
+                collectionIds={collectionIds}
                 onRemoveFromTrade={handleRemoveCard}
               />
             )}
