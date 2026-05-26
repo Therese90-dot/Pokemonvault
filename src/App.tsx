@@ -1,3 +1,4 @@
+import { Auth } from './pages/Auth'
 import { Collection } from './pages/Collection'
 import { Home } from './pages/Home'
 import { Trade } from './pages/Trade'
@@ -16,6 +17,10 @@ function App() {
 
   if (path === '/trade') {
     return <Trade />
+  }
+
+  if (path === '/login' || path === '/signup') {
+    return <Auth />
   }
 
   return <Home />

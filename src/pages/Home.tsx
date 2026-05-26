@@ -1,21 +1,22 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CardGrid } from '../components/cards/CardGrid'
 import { Navbar } from '../components/layout/Navbar'
+import { useAuth } from '../hooks/useAuth'
 import {
   addCardToCollection,
   getCollectionCards,
   removeCardFromCollection,
-} from '../services/collectionStorage'
+} from '../services/collectionService'
 import {
   addCardToTrade,
   getTradeCards,
   removeCardFromTrade,
-} from '../services/tradeStorage'
+} from '../services/tradeService'
 import {
   addCardToWishlist,
   getWishlistCards,
   removeCardFromWishlist,
-} from '../services/wishlistStorage'
+} from '../services/wishlistService'
 import {
   fetchCardsBySet,
   fetchFeaturedMegaEvolutionCards,
@@ -43,18 +44,13 @@ function LoadingSkeleton() {
 }
 
 export function Home() {
+  const { user, isLoadingAuth } = useAuth()
   const [sets, setSets] = useState<PokemonSetOption[]>([])
   const [cards, setCards] = useState<Card[]>([])
   const [featuredHits, setFeaturedHits] = useState<Card[]>([])
-  const [collectionCards, setCollectionCards] = useState<Card[]>(() =>
-    getCollectionCards(),
-  )
-  const [wishlistIds, setWishlistIds] = useState<string[]>(() =>
-    getWishlistCards().map((card) => card.id),
-  )
-  const [tradeIds, setTradeIds] = useState<string[]>(() =>
-    getTradeCards().map((card) => card.id),
-  )
+  const [collectionCards, setCollectionCards] = useState<Card[]>([])
+  const [wishlistIds, setWishlistIds] = useState<string[]>([])
+  const [tradeIds, setTradeIds] = useState<string[]>([])
   const [seriesFilter, setSeriesFilter] = useState<SeriesFilter>('All')
   const [selectedSetId, setSelectedSetId] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -65,6 +61,35 @@ export function Home() {
   const [isLoadingSets, setIsLoadingSets] = useState(true)
   const [isLoadingCards, setIsLoadingCards] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [saveMessage, setSaveMessage] = useState('')
+
+  useEffect(() => {
+    async function loadSavedCards(userId: string) {
+      try {
+        const [collectionCards, wishlistCards, tradeCards] = await Promise.all([
+          getCollectionCards(userId),
+          getWishlistCards(userId),
+          getTradeCards(userId),
+        ])
+
+        setCollectionCards(collectionCards)
+        setWishlistIds(wishlistCards.map((card) => card.id))
+        setTradeIds(tradeCards.map((card) => card.id))
+      } catch {
+        setSaveMessage('Could not load your saved cards.')
+      }
+    }
+
+    if (user) {
+      loadSavedCards(user.id)
+    } else {
+      window.setTimeout(() => {
+        setCollectionCards([])
+        setWishlistIds([])
+        setTradeIds([])
+      }, 0)
+    }
+  }, [user])
 
   useEffect(() => {
     async function loadFeaturedHits() {
@@ -207,33 +232,67 @@ export function Home() {
   }, [collectionCards])
   const isLoading = isLoadingSets || isLoadingCards
 
-  function handleAddToCollection(card: Card) {
-    const updatedCards = addCardToCollection(card)
+  function showLoginMessage() {
+    setSaveMessage('Login to save your collection')
+  }
+
+  async function handleAddToCollection(card: Card) {
+    if (!user) {
+      showLoginMessage()
+      return
+    }
+
+    const updatedCards = await addCardToCollection(user.id, card)
     setCollectionCards(updatedCards)
   }
 
-  function handleRemoveFromCollection(cardId: string) {
-    const updatedCards = removeCardFromCollection(cardId)
+  async function handleRemoveFromCollection(cardId: string) {
+    if (!user) {
+      showLoginMessage()
+      return
+    }
+
+    const updatedCards = await removeCardFromCollection(user.id, cardId)
     setCollectionCards(updatedCards)
   }
 
-  function handleAddToWishlist(card: Card) {
-    const updatedCards = addCardToWishlist(card)
+  async function handleAddToWishlist(card: Card) {
+    if (!user) {
+      showLoginMessage()
+      return
+    }
+
+    const updatedCards = await addCardToWishlist(user.id, card.id)
     setWishlistIds(updatedCards.map((savedCard) => savedCard.id))
   }
 
-  function handleRemoveFromWishlist(cardId: string) {
-    const updatedCards = removeCardFromWishlist(cardId)
+  async function handleRemoveFromWishlist(cardId: string) {
+    if (!user) {
+      showLoginMessage()
+      return
+    }
+
+    const updatedCards = await removeCardFromWishlist(user.id, cardId)
     setWishlistIds(updatedCards.map((savedCard) => savedCard.id))
   }
 
-  function handleAddToTrade(card: Card) {
-    const updatedCards = addCardToTrade(card)
+  async function handleAddToTrade(card: Card) {
+    if (!user) {
+      showLoginMessage()
+      return
+    }
+
+    const updatedCards = await addCardToTrade(user.id, card.id)
     setTradeIds(updatedCards.map((savedCard) => savedCard.id))
   }
 
-  function handleRemoveFromTrade(cardId: string) {
-    const updatedCards = removeCardFromTrade(cardId)
+  async function handleRemoveFromTrade(cardId: string) {
+    if (!user) {
+      showLoginMessage()
+      return
+    }
+
+    const updatedCards = await removeCardFromTrade(user.id, cardId)
     setTradeIds(updatedCards.map((savedCard) => savedCard.id))
   }
 
@@ -263,6 +322,11 @@ export function Home() {
           <p>Featured hits</p>
           <h2>Mega Evolution chase cards</h2>
         </section>
+
+        {!isLoadingAuth && !user && (
+          <p className="page-message">Login to save your collection</p>
+        )}
+        {saveMessage && <p className="page-message">{saveMessage}</p>}
 
         {isLoadingFeaturedHits && <LoadingSkeleton />}
         {!isLoadingFeaturedHits && featuredHits.length > 0 && (

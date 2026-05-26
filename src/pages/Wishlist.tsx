@@ -1,14 +1,39 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CardGrid } from '../components/cards/CardGrid'
 import { Navbar } from '../components/layout/Navbar'
+import { useAuth } from '../hooks/useAuth'
 import {
   getWishlistCards,
   removeCardFromWishlist,
-} from '../services/wishlistStorage'
+} from '../services/wishlistService'
+import type { Card } from '../types/card'
 
 export function Wishlist() {
-  const [cards, setCards] = useState(() => getWishlistCards())
+  const { user, isLoadingAuth } = useAuth()
+  const [cards, setCards] = useState<Card[]>([])
   const [searchTerm, setSearchTerm] = useState('')
+  const [isLoadingCards, setIsLoadingCards] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+
+  useEffect(() => {
+    async function loadWishlist(userId: string) {
+      try {
+        setIsLoadingCards(true)
+        setErrorMessage('')
+        setCards(await getWishlistCards(userId))
+      } catch {
+        setErrorMessage('Could not load your wishlist.')
+      } finally {
+        setIsLoadingCards(false)
+      }
+    }
+
+    if (user) {
+      loadWishlist(user.id)
+    } else {
+      window.setTimeout(() => setCards([]), 0)
+    }
+  }, [user])
 
   const visibleCards = useMemo(() => {
     const cleanSearch = searchTerm.trim().toLowerCase()
@@ -22,8 +47,12 @@ export function Wishlist() {
     })
   }, [cards, searchTerm])
 
-  function handleRemoveCard(cardId: string) {
-    const updatedCards = removeCardFromWishlist(cardId)
+  async function handleRemoveCard(cardId: string) {
+    if (!user) {
+      return
+    }
+
+    const updatedCards = await removeCardFromWishlist(user.id, cardId)
     setCards(updatedCards)
   }
 
@@ -47,13 +76,21 @@ export function Wishlist() {
           />
         </label>
 
-        {cards.length === 0 && (
+        {!isLoadingAuth && !user && (
+          <p className="page-message">Login to save your collection</p>
+        )}
+
+        {isLoadingCards && <p className="page-message">Loading your wishlist...</p>}
+
+        {errorMessage && <p className="page-message">{errorMessage}</p>}
+
+        {!isLoadingCards && user && cards.length === 0 && (
           <p className="page-message">
             Your wishlist is empty. Add cards from the home page first.
           </p>
         )}
 
-        {cards.length > 0 && visibleCards.length === 0 && (
+        {!isLoadingCards && cards.length > 0 && visibleCards.length === 0 && (
           <p className="page-message">No wishlist cards match your search.</p>
         )}
 

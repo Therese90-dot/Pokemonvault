@@ -36,6 +36,10 @@ type CardsResponse = {
   totalCount: number
 }
 
+type CardResponse = {
+  data: PokemonCard
+}
+
 const apiBaseUrl = 'https://api.pokemontcg.io/v2'
 const cacheTime = 24 * 60 * 60 * 1000
 const featuredMegaEvolutionNumbers = ['187', '179', '188', '178']
@@ -163,6 +167,10 @@ function convertPokemonCard(card: PokemonCard, set: PokemonSetOption): Card {
   }
 }
 
+function convertPokemonCardBySet(card: PokemonCard): Card {
+  return convertPokemonCard(card, convertSet(card.set))
+}
+
 export async function fetchWantedSets() {
   const cacheKey = 'pokemon-sets-v2'
   const cachedSets = getCachedData<PokemonSetOption[]>(cacheKey)
@@ -236,4 +244,36 @@ export async function fetchCardsBySet(set: PokemonSetOption) {
   saveCachedData(cacheKey, convertedCards)
 
   return convertedCards
+}
+
+export async function fetchCardById(cardId: string) {
+  const cacheKey = `pokemon-card-${cardId}`
+  const cachedCard = getCachedData<Card>(cacheKey)
+
+  if (cachedCard) {
+    return cachedCard
+  }
+
+  const response = await fetch(`${apiBaseUrl}/cards/${cardId}`)
+
+  if (!response.ok) {
+    throw new Error(`Could not load card ${cardId}.`)
+  }
+
+  const result: CardResponse = await response.json()
+  const card = convertPokemonCardBySet(result.data)
+
+  saveCachedData(cacheKey, card)
+
+  return card
+}
+
+export async function fetchCardsByIds(cardIds: string[]) {
+  const uniqueCardIds = [...new Set(cardIds)]
+
+  if (uniqueCardIds.length === 0) {
+    return []
+  }
+
+  return Promise.all(uniqueCardIds.map((cardId) => fetchCardById(cardId)))
 }

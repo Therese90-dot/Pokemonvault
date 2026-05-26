@@ -1,22 +1,46 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CardGrid } from '../components/cards/CardGrid'
 import { Navbar } from '../components/layout/Navbar'
+import { useAuth } from '../hooks/useAuth'
 import {
   addCardToCollection,
   decreaseCardQuantity,
   getCollectionCards,
   removeCardFromCollection,
-} from '../services/collectionStorage'
+} from '../services/collectionService'
 import type { Card } from '../types/card'
 
 type SortOption = 'price-low' | 'price-high' | 'name-az' | 'name-za'
 
 export function Collection() {
-  const [cards, setCards] = useState(() => getCollectionCards())
+  const { user, isLoadingAuth } = useAuth()
+  const [cards, setCards] = useState<Card[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [sortOption, setSortOption] = useState<SortOption>('name-az')
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
+  const [isLoadingCards, setIsLoadingCards] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+
+  useEffect(() => {
+    async function loadCollection(userId: string) {
+      try {
+        setIsLoadingCards(true)
+        setErrorMessage('')
+        setCards(await getCollectionCards(userId))
+      } catch {
+        setErrorMessage('Could not load your collection.')
+      } finally {
+        setIsLoadingCards(false)
+      }
+    }
+
+    if (user) {
+      loadCollection(user.id)
+    } else {
+      window.setTimeout(() => setCards([]), 0)
+    }
+  }, [user])
 
   const visibleCards = useMemo(() => {
     const cleanSearch = searchTerm.trim().toLowerCase()
@@ -66,18 +90,30 @@ export function Collection() {
     })
   }, [cards, maxPrice, minPrice, searchTerm, sortOption])
 
-  function handleRemoveCard(cardId: string) {
-    const updatedCards = removeCardFromCollection(cardId)
+  async function handleRemoveCard(cardId: string) {
+    if (!user) {
+      return
+    }
+
+    const updatedCards = await removeCardFromCollection(user.id, cardId)
     setCards(updatedCards)
   }
 
-  function handleIncreaseQuantity(card: Card) {
-    const updatedCards = addCardToCollection(card)
+  async function handleIncreaseQuantity(card: Card) {
+    if (!user) {
+      return
+    }
+
+    const updatedCards = await addCardToCollection(user.id, card)
     setCards(updatedCards)
   }
 
-  function handleDecreaseQuantity(cardId: string) {
-    const updatedCards = decreaseCardQuantity(cardId)
+  async function handleDecreaseQuantity(cardId: string) {
+    if (!user) {
+      return
+    }
+
+    const updatedCards = await decreaseCardQuantity(user.id, cardId)
     setCards(updatedCards)
   }
 
@@ -140,13 +176,21 @@ export function Collection() {
           </label>
         </section>
 
-        {cards.length === 0 && (
+        {!isLoadingAuth && !user && (
+          <p className="page-message">Login to save your collection</p>
+        )}
+
+        {isLoadingCards && <p className="page-message">Loading your collection...</p>}
+
+        {errorMessage && <p className="page-message">{errorMessage}</p>}
+
+        {!isLoadingCards && user && cards.length === 0 && (
           <p className="page-message">
             Your collection is empty. Add cards from the home page first.
           </p>
         )}
 
-        {cards.length > 0 && visibleCards.length === 0 && (
+        {!isLoadingCards && cards.length > 0 && visibleCards.length === 0 && (
           <p className="page-message">No saved cards match your search.</p>
         )}
 

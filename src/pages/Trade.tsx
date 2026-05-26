@@ -1,23 +1,59 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CardGrid } from '../components/cards/CardGrid'
 import { Navbar } from '../components/layout/Navbar'
-import { getCollectionCards } from '../services/collectionStorage'
-import { getTradeCards, removeCardFromTrade } from '../services/tradeStorage'
+import { useAuth } from '../hooks/useAuth'
+import { getCollectionCards } from '../services/collectionService'
+import { getTradeCards, removeCardFromTrade } from '../services/tradeService'
+import type { Card } from '../types/card'
 
 type SortOption = 'price-low' | 'price-high' | 'name-az' | 'name-za'
 
 export function Trade() {
-  const [cards, setCards] = useState(() => getTradeCards())
+  const { user, isLoadingAuth } = useAuth()
+  const [cards, setCards] = useState<Card[]>([])
+  const [collectionCards, setCollectionCards] = useState<Card[]>([])
   const collectionIds = useMemo(() => {
-    return getCollectionCards().map((card) => card.id)
-  }, [])
+    return collectionCards.map((card) => card.id)
+  }, [collectionCards])
   const collectionQuantities = useMemo(() => {
     return Object.fromEntries(
-      getCollectionCards().map((card) => [card.id, card.quantity ?? 1]),
+      collectionCards.map((card) => [card.id, card.quantity ?? 1]),
     )
-  }, [])
+  }, [collectionCards])
   const [searchTerm, setSearchTerm] = useState('')
   const [sortOption, setSortOption] = useState<SortOption>('name-az')
+  const [isLoadingCards, setIsLoadingCards] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+
+  useEffect(() => {
+    async function loadTradeCards(userId: string) {
+      try {
+        setIsLoadingCards(true)
+        setErrorMessage('')
+
+        const [tradeCards, collectionCards] = await Promise.all([
+          getTradeCards(userId),
+          getCollectionCards(userId),
+        ])
+
+        setCards(tradeCards)
+        setCollectionCards(collectionCards)
+      } catch {
+        setErrorMessage('Could not load your trade cards.')
+      } finally {
+        setIsLoadingCards(false)
+      }
+    }
+
+    if (user) {
+      loadTradeCards(user.id)
+    } else {
+      window.setTimeout(() => {
+        setCards([])
+        setCollectionCards([])
+      }, 0)
+    }
+  }, [user])
 
   const visibleCards = useMemo(() => {
     const cleanSearch = searchTerm.trim().toLowerCase()
@@ -55,8 +91,12 @@ export function Trade() {
     })
   }, [cards, searchTerm, sortOption])
 
-  function handleRemoveCard(cardId: string) {
-    const updatedCards = removeCardFromTrade(cardId)
+  async function handleRemoveCard(cardId: string) {
+    if (!user) {
+      return
+    }
+
+    const updatedCards = await removeCardFromTrade(user.id, cardId)
     setCards(updatedCards)
   }
 
@@ -70,14 +110,22 @@ export function Trade() {
           <h1>Cards ready to trade</h1>
         </section>
 
-        {cards.length === 0 && (
+        {!isLoadingAuth && !user && (
+          <p className="page-message">Login to save your collection</p>
+        )}
+
+        {isLoadingCards && <p className="page-message">Loading your trade cards...</p>}
+
+        {errorMessage && <p className="page-message">{errorMessage}</p>}
+
+        {!isLoadingCards && user && cards.length === 0 && (
           <section className="empty-state">
             <p>Your trade binder is empty</p>
             <a href="/">Browse cards</a>
           </section>
         )}
 
-        {cards.length > 0 && (
+        {!isLoadingCards && cards.length > 0 && (
           <>
             <section className="filters collection-filters" aria-label="Trade filters">
               <label className="filter-control">
